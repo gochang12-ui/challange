@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>정식품 시장조사 체커</title>
+<style>
+:root{
+  --brand:#1B4F72;--brand2:#2471A3;--brand-light:#D6EAF8;
+  --gray100:#F4F6F8;--gray200:#E8ECF0;--gray300:#CDD3DA;
+  --gray400:#99A3AD;--gray500:#6B7683;--gray600:#3D4A57;--gray700:#1E2A35;
+  --ok:#0F9D58;--ok-bg:#E6F4EA;
+  --warn:#F5A623;--warn-bg:#FEF9E7;
+  --danger:#D32F2F;--danger-bg:#FDECEA;
+  --info:#1565C0;--info-bg:#E3F2FD;
+  --radius:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:-apple-system,BlinkMacSystemFont,'Pretendard','Apple SD Gothic Neo',sans-serif;background:var(--gray100);color:var(--gray700);font-size:14px;line-height:1.5}
+
+/* 화면 전환 */
+.screen{display:none;position:fixed;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;background:#fff}
+.screen.on{display:block}
+
+/* 로그인 */
+#scr-login{background:var(--gray100);display:flex;align-items:center;justify-content:center}
+.login-box{background:#fff;border-radius:16px;padding:32px 28px;width:320px;box-shadow:0 4px 24px rgba(0,0,0,.08)}
+.login-logo{text-align:center;margin-bottom:24px}
+.login-logo-badge{width:54px;height:54px;background:var(--brand);border-radius:14px;display:inline-flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;margin-bottom:10px}
+.login-title{font-size:16px;font-weight:700;color:var(--brand)}
+.login-sub{font-size:12px;color:var(--gray400);margin-top:2px}
+.login-field{margin-bottom:12px}
+.login-label{font-size:11px;font-weight:700;color:var(--gray500);text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:5px}
+.login-input{width:100%;background:var(--gray100);border:1px solid var(--gray200);border-radius:8px;padding:10px 12px;font-size:14px;outline:none;color:var(--gray700)}
+.login-input:focus{border-color:var(--brand2);background:#fff}
+.login-btn{width:100%;background:var(--brand2);color:#fff;border:none;border-radius:8px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;margin-top:4px}
+.login-btn:hover{background:var(--brand)}
+.login-err{font-size:12px;color:var(--danger);text-align:center;margin-top:8px;display:none}
+
+/* 공통 헤더 */
+.gnb{display:flex;align-items:center;padding:12px 16px;background:#fff;border-bottom:1px solid var(--gray200);position:sticky;top:0;z-index:50;gap:10px}
+.gnb-back{display:none;align-items:center;gap:4px;background:var(--gray100);border:none;border-radius:7px;padding:6px 12px;font-size:13px;color:var(--gray600);cursor:pointer;font-weight:500}
+.gnb-back.show{display:flex}
+.gnb-title{font-size:15px;font-weight:700;color:var(--gray700);flex:1}
+.gnb-right{display:flex;align-items:center;gap:8px}
+.gnb-sync{background:none;border:1px solid var(--gray300);border-radius:7px;padding:5px 10px;font-size:12px;color:var(--gray500);cursor:pointer}
+.gnb-av{width:28px;height:28px;border-radius:50%;background:var(--brand);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;cursor:pointer;flex-shrink:0}
+
+/* 바텀 네비 */
+.bnav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--gray200);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom)}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;cursor:pointer;color:var(--gray400);font-size:10px;font-weight:500;border:none;background:none}
+.bnav-item.active{color:var(--brand2)}
+.bnav-item svg{width:22px;height:22px}
+.bnav-badge{position:absolute;top:6px;right:calc(50% - 16px);background:var(--danger);color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:10px;min-width:16px;text-align:center}
+.bnav-item-wrap{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px}
+
+/* 공통 pw (page wrapper) */
+.pw{padding:16px 16px 100px}
+
+/* 버튼 */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--gray300);background:#fff;color:var(--gray700)}
+.btn.primary{background:var(--brand2);color:#fff;border-color:var(--brand2)}
+.btn.danger{background:var(--danger);color:#fff;border-color:var(--danger)}
+.btn.sm{padding:5px 10px;font-size:12px}
+.btn.lg{padding:11px 20px;font-size:14px;font-weight:700;width:100%}
+
+/* 폼 */
+.form-group{margin-bottom:14px}
+.fl{font-size:11px;font-weight:700;color:var(--gray500);text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:5px}
+.fi{width:100%;background:var(--gray100);border:1px solid var(--gray200);border-radius:8px;padding:10px 12px;font-size:14px;outline:none;color:var(--gray700)}
+.fi:focus{border-color:var(--brand2);background:#fff}
+.fsel{width:100%;background:var(--gray100);border:1px solid var(--gray200);border-radius:8px;padding:10px 12px;font-size:14px;outline:none;color:var(--gray700)}
+.fta{width:100%;background:var(--gray100);border:1px solid var(--gray200);border-radius:8px;padding:10px 12px;font-size:14px;outline:none;color:var(--gray700);resize:none;min-height:80px}
+
+/* 구분선 */
+.sdiv{font-size:10px;font-weight:700;color:var(--gray400);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 8px;padding-top:12px;border-top:1px solid var(--gray200)}
+
+/* 토글 */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;font-size:14px;border-bottom:1px solid var(--gray100)}
+.toggle-row:last-child{border-bottom:none}
+.toggle{width:36px;height:20px;border-radius:10px;position:relative;flex-shrink:0;cursor:pointer;transition:background .15s}
+.toggle.on{background:var(--ok)}.toggle.off{background:var(--gray300)}
+.toggle-dot{width:16px;height:16px;background:#fff;border-radius:50%;position:absolute;top:2px;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:left .15s}
+.toggle.on .toggle-dot{left:18px}.toggle.off .toggle-dot{left:2px}
+
+/* 카드 */
+.card{background:#fff;border:1px solid var(--gray200);border-radius:12px;padding:14px;margin-bottom:12px}
+.card-title{font-size:13px;font-weight:700;color:var(--gray600);margin-bottom:10px}
+
+/* 칩 */
+.chip{display:inline-flex;align-items:center;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600}
+.chip.ok{background:var(--ok-bg);color:var(--ok)}
+.chip.danger{background:var(--danger-bg);color:var(--danger)}
+.chip.warn{background:var(--warn-bg);color:var(--warn)}
+.chip.gray{background:var(--gray100);color:var(--gray500);border:1px solid var(--gray200)}
+.chip.brand{background:var(--brand-light);color:var(--brand2)}
+
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.kpi{background:#fff;border:1px solid var(--gray200);border-radius:10px;padding:12px 14px}
+.kpi-label{font-size:10px;color:var(--gray400);font-weight:700;margin-bottom:5px;text-transform:uppercase}
+.kpi-value{font-size:22px;font-weight:700;line-height:1}
+.kpi-sub{font-size:11px;margin-top:4px;color:var(--gray400)}
+.kpi-sub.up{color:var(--ok)}.kpi-sub.dn{color:var(--danger)}
+
+/* 점포 카드 (홈) */
+.store-card{background:#fff;border:1px solid var(--gray200);border-radius:12px;padding:13px 14px;margin-bottom:8px;cursor:pointer}
+.store-card:active{background:var(--gray100)}
+.store-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.store-card-name{font-size:15px;font-weight:700}
+.store-card-meta{font-size:11px;color:var(--gray400);display:flex;gap:8px;flex-wrap:wrap}
+.store-card-chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+
+/* 신제품 선택 */
+.prod-selector{display:flex;flex-direction:column;gap:6px}
+.prod-select-item{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1.5px solid var(--gray200);border-radius:9px;cursor:pointer;background:#fff}
+.prod-select-item.selected{border-color:var(--brand2);background:var(--brand-light)}
+.prod-select-name{font-size:13px;font-weight:600}
+.prod-select-since{font-size:11px;color:var(--gray400)}
+.prod-check{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--gray300);display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;flex-shrink:0}
+.prod-select-item.selected .prod-check{background:var(--brand2);border-color:var(--brand2)}
+
+/* 신제품 항목 */
+.prod-items{background:var(--brand-light);border-radius:9px;padding:11px 13px;margin-top:6px;display:none}
+.prod-items.show{display:block}
+.prod-items-title{font-size:11px;font-weight:700;color:var(--brand2);margin-bottom:8px}
+.sku-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px solid rgba(36,113,163,.15)}
+.sku-row:last-child{border-bottom:none}
+
+/* 가격 입력 */
+.price-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.price-label{font-size:12px;color:var(--gray500);width:80px;flex-shrink:0}
+.price-input{flex:1;background:var(--gray100);border:1px solid var(--gray200);border-radius:7px;padding:7px 10px;font-size:13px;text-align:right;outline:none}
+.price-input:focus{border-color:var(--brand2)}
+.price-unit{font-size:12px;color:var(--gray400)}
+
+/* 토스트 */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--gray700);color:#fff;padding:9px 18px;border-radius:20px;font-size:13px;font-weight:500;z-index:999;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap;max-width:90vw;text-align:center}
+.toast.ok{background:var(--ok)}
+.toast.err{background:var(--danger)}
+
+/* 업로드 팝업 */
+.uppop{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:center;justify-content:center}
+.uppop.on{display:flex}
+.uppop-box{background:#fff;border-radius:14px;padding:24px;width:280px;text-align:center}
+.uppop-title{font-size:15px;font-weight:700;margin-bottom:6px}
+.uppop-sub{font-size:13px;color:var(--gray500);margin-bottom:14px}
+.uppop-bar-wrap{background:var(--gray100);border-radius:6px;height:8px;overflow:hidden}
+.uppop-bar{height:100%;background:var(--brand2);border-radius:6px;width:0%;transition:width .3s}
+
+/* 구분 섹션 */
+.section-box{background:var(--gray100);border-radius:9px;padding:11px 13px;margin-bottom:10px}
+.section-box-title{font-size:10px;font-weight:700;color:var(--gray500);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+
+/* 빈 상태 */
+.empty{text-align:center;padding:48px 24px;color:var(--gray400)}
+.empty-icon{font-size:36px;margin-bottom:10px}
+.empty-text{font-size:14px;font-weight:600;color:var(--gray500);margin-bottom:4px}
+.empty-sub{font-size:12px}
+
+/* 분석 탭 */
+.an-tabs{display:flex;border-bottom:1px solid var(--gray200);margin-bottom:14px;overflow-x:auto}
+.an-tab{padding:8px 14px;font-size:13px;color:var(--gray400);cursor:pointer;border-bottom:2.5px solid transparent;margin-bottom:-1px;white-space:nowrap;font-weight:500;flex-shrink:0}
+.an-tab.active{color:var(--brand2);border-bottom-color:var(--brand2)}
+.an-pane{display:none}.an-pane.active{display:block}
+
+/* 수평 바 */
+.hbar{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px}
+.hbar-label{width:50px;color:var(--gray500);font-size:11px;flex-shrink:0}
+.hbar-track{flex:1;height:7px;background:var(--gray100);border-radius:4px;overflow:hidden}
+.hbar-fill{height:100%;border-radius:4px}
+.hbar-val{font-size:11px;color:var(--gray500);width:30px;text-align:right;flex-shrink:0}
+
+/* 테이블 */
+.tbl-wrap{border:1px solid var(--gray200);border-radius:10px;overflow:hidden;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:500px}
+th{background:var(--gray100);padding:7px 10px;text-align:left;font-weight:600;font-size:11px;color:var(--gray500);border-bottom:1px solid var(--gray200);white-space:nowrap}
+td{padding:8px 10px;border-bottom:1px solid var(--gray200);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+td.name{font-weight:600}
+td.muted{color:var(--gray500)}
+
+/* 설정 */
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--gray100)}
+.setting-row:last-child{border-bottom:none}
+.setting-label{font-size:14px;font-weight:500}
+.setting-sub{font-size:11px;color:var(--gray400);margin-top:2px}
+.prod-tag{display:inline-flex;align-items:center;gap:5px;background:#fff;border:1px solid var(--gray300);border-radius:6px;padding:5px 10px;font-size:12px;margin:3px}
+.prod-tag .del{color:var(--gray400);cursor:pointer;font-size:14px;line-height:1}
+.add-tag-btn{display:inline-flex;align-items:center;gap:4px;background:var(--brand-light);border:1px solid var(--brand2);border-radius:6px;padding:5px 10px;font-size:12px;color:var(--brand2);cursor:pointer;margin:3px}
+
+/* 사진 영역 */
+.photo-area{background:var(--gray100);border:2px dashed var(--gray300);border-radius:10px;height:80px;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--gray400);cursor:pointer;margin-bottom:8px}
+.photo-thumb{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px;margin-bottom:8px;display:none}
+
+/* 모달 */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:150;display:none;align-items:flex-end}
+.modal-bg.on{display:flex}
+.modal{background:#fff;border-radius:16px 16px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom));width:100%;max-height:90vh;overflow-y:auto}
+.modal-title{font-size:16px;font-weight:700;margin-bottom:14px}
+.modal-close{float:right;background:none;border:none;font-size:20px;color:var(--gray400);cursor:pointer;line-height:1}
+</style>
+</head>
+<body>
+
+<!-- 로그인 -->
+<div id="scr-login" class="screen on">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-logo-badge">정</div>
+      <div class="login-title">시장조사 체커</div>
+      <div class="login-sub">정식품 영업지원팀</div>
+    </div>
+    <div class="login-field">
+      <label class="login-label">사번</label>
+      <input class="login-input" id="login-id" type="text" inputmode="numeric" placeholder="사번 입력" />
+    </div>
+    <div class="login-field">
+      <label class="login-label">비밀번호</label>
+      <input class="login-input" id="login-pw" type="password" placeholder="비밀번호 입력" />
+    </div>
+    <button class="login-btn" onclick="doLogin()">로그인</button>
+    <div class="login-err" id="login-err">사번 또는 비밀번호가 올바르지 않습니다.</div>
+  </div>
+</div>
+
+<!-- 홈 -->
+<div id="scr-home" class="screen">
+  <div class="gnb">
+    <div class="gnb-title">🏠 홈</div>
+    <div class="gnb-right">
+      <button class="gnb-sync" onclick="doSync()">↻ 동기화</button>
+      <div class="gnb-av" id="gnb-av" onclick="showScreen('settings')"></div>
+    </div>
+  </div>
+  <div class="pw">
+    <div id="home-kpi" class="kpi-grid"></div>
+    <div style="font-size:12px;font-weight:700;color:var(--gray500);margin-bottom:8px">최근 방문 점포</div>
+    <div id="home-list"></div>
+  </div>
+</div>
+
+<!-- 점포관리 -->
+<div id="scr-stores" class="screen">
+  <div class="gnb">
+    <div class="gnb-title">🏪 점포관리</div>
+    <div class="gnb-right">
+      <button class="btn sm primary" onclick="openAddStore()">+ 추가</button>
+    </div>
+  </div>
+  <div class="pw">
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+      <select class="fi" id="st-office" style="flex:1;min-width:100px" onchange="renderStores()"><option value="">전체 영업소</option></select>
+      <input class="fi" id="st-search" style="flex:1;min-width:120px" placeholder="점포명 검색" oninput="renderStores()" />
+    </div>
+    <div id="store-list"></div>
+  </div>
+</div>
+
+<!-- 점포 상세 -->
+<div id="scr-detail" class="screen">
+  <div class="gnb">
+    <button class="gnb-back show" onclick="goBack()">← 뒤로</button>
+    <div class="gnb-title" id="detail-name-gnb"></div>
+    <div class="gnb-right">
+      <button class="btn sm" id="btn-visit">+ 방문 등록</button>
+    </div>
+  </div>
+  <div class="pw">
+    <div id="detail-content"></div>
+  </div>
+</div>
+
+<!-- 방문 등록 (핵심 입력 화면) -->
+<div id="scr-visit" class="screen">
+  <div class="gnb">
+    <button class="gnb-back show" onclick="goBack()">← 뒤로</button>
+    <div class="gnb-title">방문 등록</div>
+  </div>
+  <div class="pw">
+    <div id="visit-store-info" class="card" style="margin-bottom:14px"></div>
+
+    <!-- 사진 등록 -->
+    <div class="sdiv" style="margin-top:0;border-top:none;padding-top:0">📷 매장 사진</div>
+    <label class="fl">매장 전경 사진</label>
+    <div class="photo-area" onclick="triggerPhoto('main-photo')">📷 사진 찍기 / 첨부</div>
+    <img class="photo-thumb" id="main-photo-thumb" />
+    <input type="file" id="main-photo" accept="image/*" capture="environment" style="display:none" onchange="previewPhoto(this,'main-photo-thumb')" />
+
+    <!-- 신제품 입점 -->
+    <div class="sdiv">📦 신제품 입점 현황</div>
+    <div class="prod-selector" id="prod-selector"></div>
+    <div id="prod-items-container"></div>
+
+    <!-- 행사매대 -->
+    <div class="sdiv">🎪 베지밀 행사매대</div>
+    <div class="form-group">
+      <label class="fl">매대 유형</label>
+      <select class="fsel" id="event-type">
+        <option value="">없음</option>
+        <option value="end">엔드</option>
+        <option value="pallet">파레트</option>
+        <option value="island">섬매대</option>
+        <option value="other">기타</option>
+      </select>
+    </div>
+    <div id="price-section" style="display:none">
+      <label class="fl">행사 가격 입력</label>
+      <div id="price-inputs"></div>
+    </div>
+
+    <!-- 경쟁사 -->
+    <div class="sdiv">🥊 경쟁사 행사매대</div>
+    <div id="comp-toggles" class="section-box"></div>
+
+    <!-- 메모 -->
+    <div class="sdiv">📝 메모</div>
+    <div class="form-group">
+      <textarea class="fta" id="visit-memo" placeholder="방문 특이사항 (선택)"></textarea>
+    </div>
+
+    <button class="btn lg primary" onclick="saveVisit()">💾 저장 및 동기화</button>
+  </div>
+</div>
+
+<!-- 분석 -->
+<div id="scr-analytics" class="screen">
+  <div class="gnb">
+    <div class="gnb-title">📊 분석현황</div>
+    <div class="gnb-right">
+      <select class="gnb-sync" id="an-office" onchange="renderAnalytics()">
+        <option value="">전체 영업소</option>
+      </select>
+    </div>
+  </div>
+  <div class="pw">
+    <div class="an-tabs">
+      <div class="an-tab active" onclick="showAnTab('입점현황',this)">신제품 입점</div>
+      <div class="an-tab" onclick="showAnTab('행사가격',this)">행사가격</div>
+      <div class="an-tab" onclick="showAnTab('경쟁사',this)">경쟁사</div>
+      <div class="an-tab" onclick="showAnTab('이력',this)">점포이력</div>
+    </div>
+    <div id="an-content"></div>
+  </div>
+</div>
+
+<!-- 설정 -->
+<div id="scr-settings" class="screen">
+  <div class="gnb">
+    <button class="gnb-back show" onclick="goBack()">← 뒤로</button>
+    <div class="gnb-title">⚙️ 설정</div>
+  </div>
+  <div class="pw">
+    <div style="font-size:12px;font-weight:700;color:var(--gray500);margin-bottom:10px">신제품 관리</div>
+    <div id="settings-products"></div>
+    <button class="btn sm" onclick="addProduct()" style="margin-bottom:20px">+ 신제품 추가</button>
+
+    <div style="font-size:12px;font-weight:700;color:var(--gray500);margin-bottom:10px">행사가격 추적 품목</div>
+    <div id="settings-price-items"></div>
+    <button class="btn sm" onclick="addPriceItem()" style="margin-bottom:20px">+ 품목 추가</button>
+
+    <div style="font-size:12px;font-weight:700;color:var(--gray500);margin-bottom:10px">경쟁사 설정</div>
+    <div id="settings-competitors"></div>
+    <button class="btn sm" onclick="addCompetitor()" style="margin-bottom:20px">+ 경쟁사 추가</button>
+
+    <div class="card">
+      <div class="setting-row">
+        <div><div class="setting-label" id="settings-name"></div><div class="setting-sub" id="settings-office"></div></div>
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-label">로그아웃</div></div>
+        <button class="btn sm danger" onclick="doLogout()">로그아웃</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 바텀 네비 -->
+<div class="bnav" id="bnav" style="display:none">
+  <button class="bnav-item active" id="bnav-home" onclick="showScreen('home')">
+    <div class="bnav-item-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>홈
+    </div>
+  </button>
+  <button class="bnav-item" id="bnav-stores" onclick="showScreen('stores')">
+    <div class="bnav-item-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>점포관리
+    </div>
+  </button>
+  <button class="bnav-item" id="bnav-visit" onclick="openVisitPick()">
+    <div class="bnav-item-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>방문등록
+    </div>
+  </button>
+  <button class="bnav-item" id="bnav-analytics" onclick="showScreen('analytics');renderAnalytics()">
+    <div class="bnav-item-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>분석
+    </div>
+  </button>
+</div>
+
+<!-- 업로드 팝업 -->
+<div class="uppop" id="uppop">
+  <div class="uppop-box">
+    <div class="uppop-title">저장 중...</div>
+    <div class="uppop-sub" id="uppop-sub">사진을 드라이브에 업로드 중입니다</div>
+    <div class="uppop-bar-wrap"><div class="uppop-bar" id="uppop-bar"></div></div>
+  </div>
+</div>
+
+<!-- 모달: 점포 선택 (방문등록 진입점) -->
+<div class="modal-bg" id="modal-pick">
+  <div class="modal">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div class="modal-title" style="margin:0">방문할 점포 선택</div>
+      <button class="modal-close" onclick="closeModal('modal-pick')">×</button>
+    </div>
+    <input class="fi" id="pick-search" placeholder="점포명 검색" oninput="renderPickList()" style="margin-bottom:10px" />
+    <div id="pick-list" style="max-height:60vh;overflow-y:auto"></div>
+  </div>
+</div>
+
+<!-- 토스트 -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── 설정 ───────────────────────────────────────────────
+var GAS_URL = 'https://script.google.com/macros/s/AKfycbwnHT81h0oNkk1lEYkQTMazbpF9El9q20sqOXO1AQxY_6zdTFS96WXFJxYgX2x8oBO1/exec';
+var SHEETS_ID = '1MBAmX-MTHnhsNCqWJ7QqqiYueDTdVqvchJYGXU9Gs50';
+var APP_VERSION = '1';
+var PASS = 'pass123';
+
+var USERS = {
+  '20170004':{name:'남인석',role:'field',office:'전남영업소'},
+  '20060011':{name:'김상희',role:'field',office:'서부영업소'},
+  '20060007':{name:'임동욱',role:'field',office:'동부영업소'},
+  '20070026':{name:'서태석',role:'field',office:'충청영업소'},
+  '20070012':{name:'서원일',role:'field',office:'경북영업소'},
+  '20080007':{name:'권시환',role:'field',office:'남부영업소'},
+  '20110051':{name:'임준호',role:'field',office:'전북영업소'},
+  '20120020':{name:'박준오',role:'field',office:'경북영업소'},
+  '20130006':{name:'김근완',role:'field',office:'남부영업소'},
+  '20130023':{name:'이주영',role:'field',office:'동부영업소'},
+  '20130025':{name:'송강용',role:'field',office:'충청영업소'},
+  '20130056':{name:'한진솔',role:'field',office:'부산영업소'},
+  '20110034':{name:'류진천',role:'field',office:'서부영업소'},
+  '20130014':{name:'김은식',role:'field',office:'부산영업소'},
+  '20130048':{name:'안정민',role:'field',office:'북부영업소'},
+  '20130015':{name:'최재형',role:'field',office:'강원영업소'},
+  '20160007':{name:'장현창',role:'field',office:'경남영업소'},
+  '20160008':{name:'김석환',role:'field',office:'경북영업소'},
+  '20160006':{name:'최석도',role:'field',office:'부산영업소'},
+  '20170020':{name:'윤용기',role:'field',office:'전북영업소'},
+  '20180006':{name:'문종호',role:'field',office:'경북영업소'},
+  '20180014':{name:'김준성',role:'field',office:'전남영업소'},
+  '20180021':{name:'배대희',role:'field',office:'남부영업소'},
+  '20190006':{name:'김성현',role:'field',office:'서부영업소'},
+  '20210011':{name:'이호산',role:'field',office:'부산영업소'},
+  '20210036':{name:'이채현',role:'field',office:'전남영업소'},
+  '20220005':{name:'김현승',role:'field',office:'전북영업소'},
+  '20220012':{name:'여덕현',role:'field',office:'동부영업소'},
+  '20220015':{name:'김민석',role:'field',office:'북부영업소'},
+  '20220018':{name:'하두원',role:'field',office:'충청영업소'},
+  '20220047':{name:'박상욱',role:'field',office:'강원영업소'},
+  '20230011':{name:'전홍성',role:'field',office:'경남영업소'},
+  '20240010':{name:'박동주',role:'field',office:'경북영업소'},
+  '20250014':{name:'김승환',role:'field',office:'강원영업소'},
+  '20250016':{name:'문민식',role:'field',office:'북부영업소'},
+  '20250018':{name:'전세찬',role:'field',office:'전남영업소'},
+  '20250019':{name:'심은솔',role:'field',office:'경남영업소'},
+  '20260010':{name:'최병헌',role:'field',office:'충청영업소'},
+  '20080030':{name:'이정호',role:'manager',office:'영업지원팀'},
+  '20110050':{name:'전성재',role:'manager',office:'영업지원팀'},
+  '20130049':{name:'고창현',role:'manager',office:'영업지원팀'},
+  '20190009':{name:'최영근',role:'manager',office:'영업지원팀'},
+  '20130077':{name:'장소연',role:'manager',office:'영업지원팀'},
+  '19990008':{name:'한덕훈',role:'manager',office:'영업지원팀'},
+  '19990009':{name:'전남규',role:'field',office:'경북영업소'},
+  '19980009':{name:'김영규',role:'field',office:'전남영업소'},
+  '20000019':{name:'장창환',role:'field',office:'남부영업소'},
+  '20000106':{name:'이인수',role:'field',office:'서부영업소'},
+  '20010016':{name:'오진수',role:'field',office:'동부영업소'},
+  '20020008':{name:'이현철',role:'field',office:'부산영업소'},
+  '20020066':{name:'남동균',role:'field',office:'충청영업소'},
+  '20020079':{name:'송헌근',role:'field',office:'북부영업소'},
+  '20070033':{name:'현상윤',role:'field',office:'강원영업소'},
+  '20070034':{name:'박경태',role:'field',office:'경남영업소'},
+  '20080002':{name:'최병권',role:'field',office:'전북영업소'}
+};
+
+// ─── 앱 상태 ─────────────────────────────────────────────
+var S = {
+  user: null,
+  currentStore: null,
+  screenStack: [],
+  anTab: '입점현황'
+};
+
+// ─── 로컬 스토리지 헬퍼 ──────────────────────────────────
+function loadStores(){ return JSON.parse(localStorage.getItem('mc_stores')||'[]'); }
+function saveStores(d){ localStorage.setItem('mc_stores', JSON.stringify(d)); }
+function loadVisits(){ return JSON.parse(localStorage.getItem('mc_visits')||'[]'); }
+function saveVisits(d){ localStorage.setItem('mc_visits', JSON.stringify(d)); }
+function loadProducts(){ return JSON.parse(localStorage.getItem('mc_products')||JSON.stringify([
+  {id:'ivita', name:'아임비타 비타드링크', since:'2025.03', skus:[
+    {key:'단品', label:'낱본 (200ml)'},
+    {key:'10본', label:'10본 박스'},
+    {key:'20본', label:'20본 박스'}
+  ]},
+  {id:'kong', name:'특등급 콩국물', since:'2025.09', skus:[
+    {key:'냉장단品', label:'냉장 낱개 (190ml)'},
+    {key:'상온단品', label:'상온 낱개 (190ml)'}
+  ]}
+])); }
+function saveProducts(d){ localStorage.setItem('mc_products', JSON.stringify(d)); }
+function loadPriceItems(){ return JSON.parse(localStorage.getItem('mc_price_items')||JSON.stringify(['검은콩저당','검은콩아몬드','16곡','참깨','참깨고칼슘'])); }
+function savePriceItems(d){ localStorage.setItem('mc_price_items', JSON.stringify(d)); }
+function loadCompetitors(){ return JSON.parse(localStorage.getItem('mc_competitors')||JSON.stringify(['삼육','매일','남양','연세'])); }
+function saveCompetitors(d){ localStorage.setItem('mc_competitors', JSON.stringify(d)); }
+
+// ─── 유틸 ────────────────────────────────────────────────
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function today(){ var d=new Date(); d.setMinutes(d.getMinutes()-d.getTimezoneOffset()); return d.toISOString().slice(0,10); }
+
+var _toastTimer;
+function toast(msg, type){
+  var el=document.getElementById('toast');
+  el.textContent=msg; el.className='toast'+(type?' '+type:'');
+  el.style.opacity='1';
+  clearTimeout(_toastTimer);
+  _toastTimer=setTimeout(function(){ el.style.opacity='0'; }, 2500);
+}
+
+// ─── 화면 전환 ───────────────────────────────────────────
+function showScreen(name){
+  var prev = document.querySelector('.screen.on');
+  if(prev && prev.id !== 'scr-login') S.screenStack.push(prev.id);
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('on'); });
+  document.getElementById('scr-'+name).classList.add('on');
+  // 바텀 네비 활성화
+  document.querySelectorAll('.bnav-item').forEach(function(b){ b.classList.remove('active'); });
+  var nb = document.getElementById('bnav-'+name);
+  if(nb) nb.classList.add('active');
+  // 화면별 렌더
+  if(name==='home') renderHome();
+  if(name==='stores') renderStores();
+  if(name==='analytics') renderAnalytics();
+  if(name==='settings') renderSettings();
+}
+
+function goBack(){
+  if(S.screenStack.length===0){ showScreen('home'); return; }
+  var prev = S.screenStack.pop();
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('on'); });
+  document.getElementById(prev).classList.add('on');
+}
+
+// ─── 로그인/로그아웃 ─────────────────────────────────────
+function doLogin(){
+  var id = document.getElementById('login-id').value.trim();
+  var pw = document.getElementById('login-pw').value.trim();
+  var err = document.getElementById('login-err');
+  if(!USERS[id] || pw !== PASS){ err.style.display='block'; return; }
+  S.user = Object.assign({}, USERS[id], {id:id});
+  localStorage.setItem('mc_session', JSON.stringify(S.user));
+  err.style.display='none';
+  onLogin();
+}
+function doLogout(){
+  localStorage.removeItem('mc_session');
+  S.user=null;
+  document.getElementById('bnav').style.display='none';
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('on'); });
+  document.getElementById('scr-login').classList.add('on');
+}
+function onLogin(){
+  document.getElementById('gnb-av').textContent = S.user.name[0];
+  document.getElementById('bnav').style.display='flex';
+  // 영업소 드롭다운 채우기
+  var offices = [...new Set(Object.values(USERS).map(function(u){ return u.office; }))].sort();
+  ['st-office','an-office'].forEach(function(id){
+    var el=document.getElementById(id); if(!el) return;
+    el.innerHTML='<option value="">전체 영업소</option>';
+    offices.forEach(function(o){ el.innerHTML+='<option value="'+o+'">'+o+'</option>'; });
+  });
+  doSync();
+  showScreen('home');
+}
+
+// 자동 로그인
+(function(){
+  var sess = localStorage.getItem('mc_session');
+  if(sess){ S.user=JSON.parse(sess); onLogin(); }
+})();
+
+// ─── 동기화 ──────────────────────────────────────────────
+function doSync(){
+  toast('동기화 중...');
+  fetch(GAS_URL+'?action=mcSyncDown')
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(d.stores) saveStores(d.stores);
+      if(d.visits) saveVisits(d.visits);
+      toast('동기화 완료', 'ok');
+      renderHome();
+    })
+    .catch(function(){ toast('동기화 실패 (오프라인)', 'err'); });
+}
+
+function syncUpVisit(visit){
+  fetch(GAS_URL, {
+    method:'POST',
+    body: JSON.stringify({action:'mcSyncUp', data:{visits:[visit]}})
+  }).catch(function(){});
+}
+
+// ─── 홈 렌더 ─────────────────────────────────────────────
+function renderHome(){
+  var stores = loadStores();
+  var visits = loadVisits();
+  // 내 점포만 (field는 자기 영업소, manager는 전체)
+  var myStores = S.user.role==='manager'
+    ? stores
+    : stores.filter(function(s){ return s.office===S.user.office; });
+
+  var visited = visits.map(function(v){ return v.storeId; });
+  var visitedSet = {};
+  visits.forEach(function(v){ visitedSet[v.storeId]=v; });
+
+  var total = myStores.length;
+  var doneCount = myStores.filter(function(s){ return visitedSet[s.id]; }).length;
+  var pct = total ? Math.round(doneCount/total*100) : 0;
+
+  document.getElementById('home-kpi').innerHTML =
+    '<div class="kpi"><div class="kpi-label">담당 점포</div><div class="kpi-value">'+total+'</div></div>'+
+    '<div class="kpi"><div class="kpi-label">방문 완료</div><div class="kpi-value">'+doneCount+'<span style="font-size:14px;color:var(--gray400)">/'+total+'</span></div><div class="kpi-sub '+(pct>=50?'up':'dn')+'">'+pct+'% 달성</div></div>';
+
+  // 최근 방문순 정렬
+  var sorted = myStores.slice().sort(function(a,b){
+    var va=visitedSet[a.id], vb=visitedSet[b.id];
+    if(va&&vb) return vb.date.localeCompare(va.date);
+    if(va) return -1; if(vb) return 1;
+    return (a.name||'').localeCompare(b.name||'');
+  });
+
+  var html = '';
+  if(!sorted.length){ html='<div class="empty"><div class="empty-icon">🏪</div><div class="empty-text">등록된 점포가 없습니다</div><div class="empty-sub">동기화하거나 점포를 추가해주세요</div></div>'; }
+  sorted.slice(0,20).forEach(function(s){
+    var v = visitedSet[s.id];
+    var chips = '';
+    if(v){
+      chips += '<span class="chip ok">방문 '+v.date+'</span> ';
+      if(v.eventType&&v.eventType!=='') chips+='<span class="chip brand">'+eventTypeLabel(v.eventType)+'</span> ';
+      var compCount = (v.competitors||[]).filter(function(c){ return c.has; }).length;
+      if(compCount) chips+='<span class="chip warn">경쟁사 '+compCount+'개</span>';
+    } else {
+      chips='<span class="chip gray">미방문</span>';
+    }
+    html+='<div class="store-card" onclick="openDetail(\''+s.id+'\')">'+
+      '<div class="store-card-header"><div class="store-card-name">'+s.name+'</div><span class="chip '+(v?'ok':'gray')+'" style="font-size:10px">'+(v?'완료':'미방문')+'</span></div>'+
+      '<div class="store-card-meta"><span>'+s.office+'</span><span>'+s.agency+'</span>'+(s.grade?'<span class="chip gray" style="font-size:10px">'+s.grade+'</span>':'')+'</div>'+
+      '<div class="store-card-chips">'+chips+'</div>'+
+      '</div>';
+  });
+  document.getElementById('home-list').innerHTML = html;
+}
+
+function eventTypeLabel(t){
+  return {end:'엔드',pallet:'파레트',island:'섬매대',other:'기타'}[t]||t;
+}
+
+// ─── 점포관리 렌더 ────────────────────────────────────────
+function renderStores(){
+  var stores = loadStores();
+  var office = document.getElementById('st-office').value;
+  var search = (document.getElementById('st-search').value||'').trim();
+  var filtered = stores.filter(function(s){
+    if(office && s.office!==office) return false;
+    if(search && s.name.indexOf(search)<0) return false;
+    return true;
+  });
+  var html='<div style="font-size:12px;color:var(--gray400);margin-bottom:8px">'+filtered.length+'개 점포</div>';
+  if(!filtered.length){ html+='<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">검색 결과 없음</div></div>'; }
+  filtered.forEach(function(s){
+    html+='<div class="store-card" onclick="openDetail(\''+s.id+'\')">'+
+      '<div class="store-card-header"><div class="store-card-name">'+s.name+'</div><span class="chip gray" style="font-size:10px">'+s.grade+'</span></div>'+
+      '<div class="store-card-meta"><span>'+s.office+'</span><span>'+s.agency+'</span><span>'+s.address+'</span></div>'+
+      '</div>';
+  });
+  document.getElementById('store-list').innerHTML=html;
+}
+
+// ─── 점포 상세 ────────────────────────────────────────────
+function openDetail(storeId){
+  var stores=loadStores();
+  var s=stores.find(function(x){ return x.id===storeId; });
+  if(!s) return;
+  S.currentStore=s;
+  document.getElementById('detail-name-gnb').textContent=s.name;
+  document.getElementById('btn-visit').onclick=function(){ openVisit(storeId); };
+
+  var visits=loadVisits().filter(function(v){ return v.storeId===storeId; }).sort(function(a,b){ return b.date.localeCompare(a.date); });
+  var html='<div class="card"><div style="font-size:16px;font-weight:700;margin-bottom:4px">'+s.name+'</div>'+
+    '<div style="font-size:12px;color:var(--gray400);display:flex;gap:10px;flex-wrap:wrap"><span>'+s.office+'</span><span>'+s.agency+'</span>'+(s.grade?'<span class="chip gray" style="font-size:10px">'+s.grade+'</span>':'')+'</div></div>';
+
+  if(!visits.length){
+    html+='<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">방문 기록 없음</div><div class="empty-sub">방문 등록 버튼을 눌러 첫 방문을 기록하세요</div></div>';
+  } else {
+    visits.forEach(function(v){
+      html+='<div class="card">'+
+        '<div style="font-size:12px;color:var(--gray400);margin-bottom:8px">'+v.date+' · '+v.user+'</div>';
+      // 신제품
+      if(v.products&&v.products.length){
+        v.products.forEach(function(p){
+          html+='<div class="section-box" style="margin-bottom:8px">'+
+            '<div class="section-box-title">'+p.name+'</div>';
+          p.skus.forEach(function(sku){
+            html+='<div style="display:flex;justify-content:space-between;font-size:13px;padding:3px 0"><span>'+sku.label+'</span><span class="chip '+(sku.value?'ok':'danger')+'" style="font-size:10px">'+(sku.value?'입점':'미입점')+'</span></div>';
+          });
+          html+='</div>';
+        });
+      }
+      // 행사매대
+      if(v.eventType){
+        html+='<div class="section-box" style="margin-bottom:8px"><div class="section-box-title">행사매대</div>'+
+          '<div style="font-size:13px;margin-bottom:6px">유형: <strong>'+eventTypeLabel(v.eventType)+'</strong></div>';
+        if(v.prices&&v.prices.length){
+          v.prices.forEach(function(p){
+            if(p.price) html+='<div style="display:flex;justify-content:space-between;font-size:12px;padding:2px 0"><span>'+p.item+'</span><span>'+Number(p.price).toLocaleString()+'원</span></div>';
+          });
+        }
+        html+='</div>';
+      }
+      // 경쟁사
+      var hasComp=(v.competitors||[]).filter(function(c){ return c.has; });
+      if(hasComp.length){
+        html+='<div class="section-box"><div class="section-box-title">경쟁사 행사매대</div>';
+        hasComp.forEach(function(c){ html+='<span class="chip danger" style="margin-right:4px">'+c.name+'</span>'; });
+        html+='</div>';
+      }
+      if(v.memo) html+='<div style="font-size:12px;color:var(--gray500);margin-top:6px">메모: '+v.memo+'</div>';
+      html+='</div>';
+    });
+  }
+  document.getElementById('detail-content').innerHTML=html;
+  S.screenStack=[];
+  showScreen('detail');
+}
+
+// ─── 방문 등록 ────────────────────────────────────────────
+function openVisitPick(){
+  renderPickList();
+  document.getElementById('modal-pick').classList.add('on');
+}
+function closeModal(id){ document.getElementById(id).classList.remove('on'); }
+function renderPickList(){
+  var stores=loadStores();
+  var search=(document.getElementById('pick-search').value||'').trim();
+  var myStores=S.user.role==='manager'?stores:stores.filter(function(s){ return s.office===S.user.office; });
+  var filtered=myStores.filter(function(s){ return !search||s.name.indexOf(search)>=0; }).slice(0,30);
+  var html='';
+  filtered.forEach(function(s){
+    html+='<div class="store-card" onclick="closeModal(\'modal-pick\');openVisit(\''+s.id+'\')">'+
+      '<div class="store-card-name">'+s.name+'</div>'+
+      '<div class="store-card-meta"><span>'+s.office+'</span><span>'+s.agency+'</span></div>'+
+      '</div>';
+  });
+  document.getElementById('pick-list').innerHTML=html||'<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">없음</div></div>';
+}
+
+function openVisit(storeId){
+  var stores=loadStores();
+  var s=stores.find(function(x){ return x.id===storeId; });
+  if(!s) return;
+  S.currentStore=s;
+  document.getElementById('visit-store-info').innerHTML=
+    '<div style="font-size:15px;font-weight:700">'+s.name+'</div>'+
+    '<div style="font-size:12px;color:var(--gray400);margin-top:3px">'+s.office+' · '+s.agency+(s.grade?' · '+s.grade:'')+'</div>';
+
+  // 신제품 선택 렌더
+  renderProdSelector();
+  // 행사 가격 렌더
+  renderPriceInputs();
+  // 경쟁사 토글 렌더
+  renderCompToggles();
+  // 사진 초기화
+  document.getElementById('main-photo-thumb').style.display='none';
+  document.getElementById('main-photo-thumb').src='';
+  document.getElementById('visit-memo').value='';
+  document.getElementById('event-type').value='';
+  document.getElementById('price-section').style.display='none';
+
+  document.getElementById('event-type').onchange=function(){
+    document.getElementById('price-section').style.display=this.value?'block':'none';
+  };
+
+  S.screenStack=[];
+  showScreen('visit');
+}
+
+function renderProdSelector(){
+  var prods=loadProducts();
+  var selHtml='', itemsHtml='';
+  prods.forEach(function(p,i){
+    var sel = i===0;
+    selHtml+='<div class="prod-select-item'+(sel?' selected':'')+'" data-pid="'+p.id+'" onclick="selectProduct(this,\''+p.id+'\')">'+
+      '<div><div class="prod-select-name">'+p.name+'</div><div class="prod-select-since">'+p.since+' 출시</div></div>'+
+      '<div class="prod-check">'+(sel?'✓':'')+'</div>'+
+      '</div>';
+    itemsHtml+='<div class="prod-items'+(sel?' show':'')+'" id="prod-items-'+p.id+'">'+
+      '<div class="prod-items-title">📦 '+p.name+' 입점 현황</div>';
+    p.skus.forEach(function(sku){
+      itemsHtml+='<div class="sku-row"><span>'+sku.label+'</span>'+
+        '<div class="toggle off" data-pid="'+p.id+'" data-sku="'+sku.key+'" onclick="toggleSku(this)"><div class="toggle-dot"></div></div>'+
+        '</div>';
+    });
+    itemsHtml+='</div>';
+  });
+  document.getElementById('prod-selector').innerHTML=selHtml;
+  document.getElementById('prod-items-container').innerHTML=itemsHtml;
+}
+
+function selectProduct(el, pid){
+  document.querySelectorAll('.prod-select-item').forEach(function(i){
+    i.classList.remove('selected');
+    i.querySelector('.prod-check').textContent='';
+  });
+  el.classList.add('selected');
+  el.querySelector('.prod-check').textContent='✓';
+  document.querySelectorAll('.prod-items').forEach(function(w){ w.classList.remove('show'); });
+  var t=document.getElementById('prod-items-'+pid);
+  if(t) t.classList.add('show');
+}
+
+function toggleSku(el){
+  el.classList.toggle('on');
+  el.classList.toggle('off');
+  var dot=el.querySelector('.toggle-dot');
+  dot.style.left=el.classList.contains('on')?'18px':'2px';
+}
+
+function renderPriceInputs(){
+  var items=loadPriceItems();
+  var html='';
+  items.forEach(function(item){
+    html+='<div class="price-row">'+
+      '<span class="price-label">'+item+'</span>'+
+      '<input class="price-input" type="number" inputmode="numeric" data-item="'+item+'" placeholder="가격" />'+
+      '<span class="price-unit">원</span>'+
+      '</div>';
+  });
+  document.getElementById('price-inputs').innerHTML=html;
+}
+
+function renderCompToggles(){
+  var comps=loadCompetitors();
+  var html='<div class="section-box-title">경쟁사 선택</div>';
+  comps.forEach(function(c){
+    html+='<div class="toggle-row"><span>'+c+'</span>'+
+      '<div class="toggle off" data-comp="'+c+'" onclick="toggleComp(this)"><div class="toggle-dot"></div></div>'+
+      '</div>';
+  });
+  document.getElementById('comp-toggles').innerHTML=html;
+}
+
+function toggleComp(el){
+  el.classList.toggle('on'); el.classList.toggle('off');
+  el.querySelector('.toggle-dot').style.left=el.classList.contains('on')?'18px':'2px';
+}
+
+// ─── 방문 저장 ────────────────────────────────────────────
+function saveVisit(){
+  if(!S.currentStore){ toast('점포를 선택하세요','err'); return; }
+
+  // 신제품 수집
+  var prods=loadProducts();
+  var productData=[];
+  prods.forEach(function(p){
+    var skus=[];
+    p.skus.forEach(function(sku){
+      var toggle=document.querySelector('.toggle[data-pid="'+p.id+'"][data-sku="'+sku.key+'"]');
+      if(toggle) skus.push({key:sku.key, label:sku.label, value:toggle.classList.contains('on')});
+    });
+    productData.push({id:p.id, name:p.name, skus:skus});
+  });
+
+  // 가격 수집
+  var prices=[];
+  document.querySelectorAll('.price-input').forEach(function(inp){
+    if(inp.value) prices.push({item:inp.dataset.item, price:inp.value});
+  });
+
+  // 경쟁사 수집
+  var competitors=[];
+  document.querySelectorAll('.toggle[data-comp]').forEach(function(t){
+    competitors.push({name:t.dataset.comp, has:t.classList.contains('on')});
+  });
+
+  var visit={
+    id: uid(),
+    storeId: S.currentStore.id,
+    storeName: S.currentStore.name,
+    date: today(),
+    user: S.user.name,
+    office: S.user.office,
+    products: productData,
+    eventType: document.getElementById('event-type').value,
+    prices: prices,
+    competitors: competitors,
+    memo: document.getElementById('visit-memo').value
+  };
+
+  // 로컬 저장
+  var visits=loadVisits();
+  visits.push(visit);
+  saveVisits(visits);
+
+  // GAS 업로드
+  syncUpVisit(visit);
+
+  toast('저장 완료!', 'ok');
+  goBack();
+}
+
+// ─── 분석 ────────────────────────────────────────────────
+function showAnTab(name, el){
+  S.anTab=name;
+  document.querySelectorAll('.an-tab').forEach(function(t){ t.classList.remove('active'); });
+  el.classList.add('active');
+  renderAnalytics();
+}
+
+function renderAnalytics(){
+  var tab=S.anTab||'입점현황';
+  var office=(document.getElementById('an-office')||{}).value||'';
+  var stores=loadStores();
+  var visits=loadVisits();
+  if(office){ stores=stores.filter(function(s){ return s.office===office; }); visits=visits.filter(function(v){ return v.office===office; }); }
+
+  var html='';
+  if(tab==='입점현황') html=renderAnNewProd(stores,visits);
+  else if(tab==='행사가격') html=renderAnPrice(stores,visits);
+  else if(tab==='경쟁사') html=renderAnComp(stores,visits);
+  else if(tab==='이력') html=renderAnHistory(stores,visits);
+  document.getElementById('an-content').innerHTML=html;
+}
+
+function renderAnNewProd(stores,visits){
+  var prods=loadProducts();
+  var visitMap={};
+  visits.forEach(function(v){ if(!visitMap[v.storeId]||v.date>visitMap[v.storeId].date) visitMap[v.storeId]=v; });
+
+  var html='<div class="kpi-grid">';
+  var total=stores.length, done=Object.keys(visitMap).length;
+  html+='<div class="kpi"><div class="kpi-label">방문 완료</div><div class="kpi-value">'+done+'<span style="font-size:13px;color:var(--gray400)">/'+total+'</span></div><div class="kpi-sub '+(done/total>=.5?'up':'dn')+'">'+Math.round(done/total*100)+'%</div></div>';
+
+  // 첫 신제품 기준 입점율
+  if(prods.length){
+    var p0=prods[0];
+    var sku0=p0.skus[0];
+    var entered=0;
+    Object.values(visitMap).forEach(function(v){
+      var pp=( v.products||[]).find(function(x){ return x.id===p0.id; });
+      if(pp){ var sk=pp.skus.find(function(s){ return s.key===sku0.key; }); if(sk&&sk.value) entered++; }
+    });
+    html+='<div class="kpi"><div class="kpi-label">'+p0.name+'<br>'+sku0.label+'</div><div class="kpi-value">'+Math.round(entered/Math.max(done,1)*100)+'<span style="font-size:13px;color:var(--gray400)">%</span></div><div class="kpi-sub up">'+entered+'/'+done+'개</div></div>';
+  }
+  html+='</div>';
+
+  // 테이블
+  html+='<div class="tbl-wrap"><table><thead><tr><th>점포명</th><th>영업소</th>';
+  prods.forEach(function(p){ p.skus.forEach(function(s){ html+='<th>'+s.label+'</th>'; }); });
+  html+='<th>방문일</th></tr></thead><tbody>';
+
+  stores.slice(0,20).forEach(function(s){
+    var v=visitMap[s.id];
+    html+='<tr><td class="name">'+s.name+'</td><td class="muted">'+s.office+'</td>';
+    prods.forEach(function(p){
+      p.skus.forEach(function(sku){
+        if(v){
+          var pp=(v.products||[]).find(function(x){ return x.id===p.id; });
+          var sk=pp?pp.skus.find(function(x){ return x.key===sku.key; }):null;
+          var val=sk?sk.value:null;
+          html+='<td style="text-align:center"><span class="chip '+(val===null?'gray':val?'ok':'danger')+'" style="font-size:10px">'+(val===null?'─':val?'O':'X')+'</span></td>';
+        } else {
+          html+='<td style="text-align:center"><span class="chip gray" style="font-size:10px">미방문</span></td>';
+        }
+      });
+    });
+    html+='<td class="muted" style="font-size:11px">'+(v?v.date:'─')+'</td></tr>';
+  });
+  html+='</tbody></table></div>';
+  return html;
+}
+
+function renderAnPrice(stores,visits){
+  var items=loadPriceItems();
+  var html='<div class="tbl-wrap"><table><thead><tr><th>점포명</th><th>영업소</th><th>매대유형</th>';
+  items.forEach(function(i){ html+='<th style="text-align:right">'+i+'</th>'; });
+  html+='<th>방문일</th></tr></thead><tbody>';
+  visits.filter(function(v){ return v.eventType; }).slice(0,20).forEach(function(v){
+    html+='<tr><td class="name">'+v.storeName+'</td><td class="muted">'+v.office+'</td><td><span class="chip gray" style="font-size:10px">'+eventTypeLabel(v.eventType)+'</span></td>';
+    items.forEach(function(i){
+      var p=(v.prices||[]).find(function(x){ return x.item===i; });
+      html+='<td style="text-align:right;font-size:12px">'+(p?Number(p.price).toLocaleString()+'원':'─')+'</td>';
+    });
+    html+='<td class="muted" style="font-size:11px">'+v.date+'</td></tr>';
+  });
+  html+='</tbody></table></div>';
+  return html;
+}
+
+function renderAnComp(stores,visits){
+  var comps=loadCompetitors();
+  var html='<div class="kpi-grid">';
+  comps.forEach(function(c){
+    var cnt=visits.filter(function(v){ return (v.competitors||[]).some(function(x){ return x.name===c&&x.has; }); }).length;
+    html+='<div class="kpi"><div class="kpi-label">'+c+'</div><div class="kpi-value">'+cnt+'<span style="font-size:13px;color:var(--gray400)">개</span></div></div>';
+  });
+  html+='</div>';
+  html+='<div class="tbl-wrap"><table><thead><tr><th>점포명</th><th>영업소</th>';
+  comps.forEach(function(c){ html+='<th style="text-align:center">'+c+'</th>'; });
+  html+='<th>방문일</th></tr></thead><tbody>';
+  visits.slice(0,20).forEach(function(v){
+    html+='<tr><td class="name">'+v.storeName+'</td><td class="muted">'+v.office+'</td>';
+    comps.forEach(function(c){
+      var cc=(v.competitors||[]).find(function(x){ return x.name===c; });
+      html+='<td style="text-align:center"><span class="chip '+(cc&&cc.has?'danger':'gray')+'" style="font-size:10px">'+(cc&&cc.has?'있음':'없음')+'</span></td>';
+    });
+    html+='<td class="muted" style="font-size:11px">'+v.date+'</td></tr>';
+  });
+  html+='</tbody></table></div>';
+  return html;
+}
+
+function renderAnHistory(stores,visits){
+  var html='<div style="font-size:12px;color:var(--gray400);margin-bottom:10px">전체 방문 이력 (최신순)</div>';
+  var sorted=visits.slice().sort(function(a,b){ return b.date.localeCompare(a.date); });
+  sorted.slice(0,30).forEach(function(v){
+    var chips='';
+    (v.products||[]).forEach(function(p){
+      var entered=p.skus.filter(function(s){ return s.value; });
+      if(entered.length) chips+='<span class="chip ok" style="font-size:10px">'+p.name+' '+entered.length+'종 입점</span> ';
+    });
+    if(v.eventType) chips+='<span class="chip brand" style="font-size:10px">'+eventTypeLabel(v.eventType)+'</span> ';
+    var hasComp=(v.competitors||[]).filter(function(c){ return c.has; });
+    if(hasComp.length) chips+='<span class="chip warn" style="font-size:10px">경쟁사 '+hasComp.map(function(c){ return c.name; }).join('·')+'</span>';
+
+    html+='<div class="card">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'+
+      '<div style="font-size:14px;font-weight:700">'+v.storeName+'</div>'+
+      '<div style="font-size:11px;color:var(--gray400)">'+v.date+'</div>'+
+      '</div>'+
+      '<div style="font-size:11px;color:var(--gray400);margin-bottom:6px">'+v.office+' · '+v.user+'</div>'+
+      '<div>'+chips+'</div>'+
+      (v.memo?'<div style="font-size:12px;color:var(--gray500);margin-top:6px">'+v.memo+'</div>':'')+
+      '</div>';
+  });
+  return html||'<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">방문 기록 없음</div></div>';
+}
+
+// ─── 설정 ────────────────────────────────────────────────
+function renderSettings(){
+  document.getElementById('settings-name').textContent=S.user.name;
+  document.getElementById('settings-office').textContent=S.user.office+' · '+(S.user.role==='manager'?'관리자':'실무자');
+
+  // 신제품
+  var prods=loadProducts();
+  var ph='';
+  prods.forEach(function(p,i){
+    ph+='<div class="card" style="margin-bottom:8px">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'+
+      '<div><div style="font-weight:700">'+p.name+'</div><div style="font-size:11px;color:var(--gray400)">'+p.since+' 출시</div></div>'+
+      '<button class="btn sm danger" onclick="removeProduct('+i+')">삭제</button>'+
+      '</div>';
+    p.skus.forEach(function(sku,j){
+      ph+='<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;font-size:13px;border-bottom:1px solid var(--gray100)">'+
+        '<span>'+sku.label+'</span>'+
+        '<button class="btn sm" onclick="removeSku('+i+','+j+')">─</button>'+
+        '</div>';
+    });
+    ph+='<button class="btn sm" onclick="addSku('+i+')" style="margin-top:6px">+ SKU 추가</button>'+
+    '</div>';
+  });
+  document.getElementById('settings-products').innerHTML=ph;
+
+  // 가격 품목
+  var items=loadPriceItems();
+  var ih='<div>';
+  items.forEach(function(item,i){ ih+='<span class="prod-tag">'+item+'<span class="del" onclick="removePriceItem('+i+')">×</span></span>'; });
+  ih+='</div>';
+  document.getElementById('settings-price-items').innerHTML=ih;
+
+  // 경쟁사
+  var comps=loadCompetitors();
+  var ch='<div>';
+  comps.forEach(function(c,i){ ch+='<span class="prod-tag">'+c+'<span class="del" onclick="removeCompetitor('+i+')">×</span></span>'; });
+  ch+='</div>';
+  document.getElementById('settings-competitors').innerHTML=ch;
+}
+
+function addProduct(){
+  var name=prompt('신제품명'); if(!name) return;
+  var since=prompt('출시월 (예: 2026.01)'); if(!since) return;
+  var prods=loadProducts();
+  prods.push({id:uid(),name:name,since:since,skus:[]});
+  saveProducts(prods); renderSettings();
+}
+function removeProduct(i){ if(!confirm('삭제?')) return; var p=loadProducts(); p.splice(i,1); saveProducts(p); renderSettings(); }
+function addSku(pi){ var label=prompt('SKU명'); if(!label) return; var p=loadProducts(); p[pi].skus.push({key:uid(),label:label}); saveProducts(p); renderSettings(); }
+function removeSku(pi,si){ var p=loadProducts(); p[pi].skus.splice(si,1); saveProducts(p); renderSettings(); }
+function addPriceItem(){ var n=prompt('품목명'); if(!n) return; var d=loadPriceItems(); d.push(n); savePriceItems(d); renderSettings(); }
+function removePriceItem(i){ var d=loadPriceItems(); d.splice(i,1); savePriceItems(d); renderSettings(); }
+function addCompetitor(){ var n=prompt('경쟁사명'); if(!n) return; var d=loadCompetitors(); d.push(n); saveCompetitors(d); renderSettings(); }
+function removeCompetitor(i){ var d=loadCompetitors(); d.splice(i,1); saveCompetitors(d); renderSettings(); }
+
+// 사진 미리보기
+function triggerPhoto(inputId){ document.getElementById(inputId).click(); }
+function previewPhoto(inp, thumbId){
+  var file=inp.files[0]; if(!file) return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var thumb=document.getElementById(thumbId);
+    thumb.src=e.target.result; thumb.style.display='block';
+    inp.previousElementSibling.style.display='none';
+  };
+  reader.readAsDataURL(file);
+}
+
+// 엔터키 로그인
+document.getElementById('login-pw').addEventListener('keydown',function(e){ if(e.key==='Enter') doLogin(); });
+</script>
+</body>
+</html>
